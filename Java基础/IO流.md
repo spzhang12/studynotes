@@ -193,13 +193,44 @@ IO流为资源，需要使用完毕在finally代码块中**释放IO流**。
 
 ### 3）常用的类
 
-#### I. 字节流 -- InputStream
+#### **节点流**
 
-![](IO流.assets/image-20210419174414602.png)
+> 节点流构造方法需要传递String
+>
+> 处理流构造方法需要传递的是节点流或者处理流对象
 
-##### FileInputStream
+当**文件二进制字节流**输入输出可以使用FileInputStream、FileOutputStream，**文件字符流**输入输出可以使用**FileReader**、**FileWriter**。
 
-###### 构造器
+- 创建：通过**表明文件地址的字符串**作为构造方法的参数
+- 输入、输出（read()、write()）
+- 关闭（输出流需要调用close()或者flush()才会将数据输出）
+- **字符输出流底部调用的是二进制字节流输出**
+
+当创建输出流对象时，**构造方法传递第二个boolean参数**可以控制其输出到外部的方式是覆盖还是追加。
+
+#### **处理流**
+
+提高输入输出效率
+
+- 转换流：用于将二进制字节流转换为某种编码格式的字符流
+  - 构造方法需要：字节流、编码格式
+
+- 对象流：用来将基本类型或者对象**序列化**和**反序列化**操作（**ObjectInputStream**、**ObjectOutputStream**）
+  - 对象流是字节流，又是处理流，构造方法需要字节流
+  - 对象输出流：writeInt()、writeChar()、writeString()、writeObject等
+  - 对象输入流：readInt()、readChar()、readUTF()、readObject()
+
+
+
+
+
+## 1.3 字节流
+
+### 1）文件输入输出流
+
+#### I. FileInputStream
+
+##### ① 构造器
 
 - 通过File对象来创建FileInputStream，即从该File对象中向Java程序读取数据；（File对象 --> Java程序）
 - 通过路径指定的文件来创建FileInputStream，从该路径指定的文件来向Java程序读取数据；
@@ -215,16 +246,14 @@ public FileInputStream(FileDescriptor fdObj) {
 }
 ```
 
-###### 常用方法
+##### ② 常用方法
 
 - read()：每次读取一个字节并返回读取的数据；如果读完了则返回-1
 - read(byte[] b)：每次从输入流中最多读取b.length字节的数据到b中，并返回读取的数据的长度；如果读完了，则返回-1
 
-#### II. 字节流 -- 输出流
+#### II. FileOutputStream
 
-##### FileOutputStream
-
-###### 构造器
+##### ① 构造器
 
 > 如果文件不存在时，会自动创建一个新的文件（**前提是存在目录**）
 
@@ -248,7 +277,7 @@ public FileInputStream(FileDescriptor fdObj) {
   FileOutputStream fileOutputStream = new FileOutputStream(filePath, true);
   ```
 
-###### 常用方法
+##### ② 常用方法
 
 > 写入时默认会覆盖掉原来的内容
 >
@@ -281,7 +310,7 @@ public FileInputStream(FileDescriptor fdObj) {
 
 - write(byte[] b, int start, int offset)
 
-##### 实例 -- 文件拷贝
+##### ③ 实例 -- 文件拷贝
 
 拷贝时需要主要要使用**write(bytes, start, offset)**方法将数据写出到外部，其中offset为从外部读取到的数据的长度。
 
@@ -319,51 +348,122 @@ public static void main(String[] args) {
 }
 ```
 
-#### III. 字符流 -- Reader
+### 2）提高效率的包装流
+
+#### I. BufferedInputStream
+
+#### II. BufferedOutputStream
+
+### 3）用于序列化的对象输入输出流
+
+> ObjectOutputStream用于完成基本类型或者对象的序列化操作
+>
+> ObjectInputStream用于完成基本类型或者对象的反序列化操作
+>
+> 类中使用static、transient修饰的变量不会被序列化
+
+#### I. ObjectOutputStream
+
+> 内部维护了一个BlockDataOutputStream类，并创建一个该类对象，调用其writeInt()、writeBytes()等方法来完成实际的功能。
+
+![image-20210420193601871](IO流.assets/image-20210420193601871.png)
+
+##### ① 构造器
+
+- 要创建ObjectOutputStream时，一般使用第一个构造方法，向其**传入一个字节输出流**，作为序列化内容会通过该字节输出流输出到指定的位置
+
+```java
+public ObjectOutputStream(OutputStream out)
+protected ObjectOutputStream() 
+```
+
+##### ② 常用方法
+
+> ObjectOutputStream仍然保留有OutputStream的一些常用方法，但一般都不用
+
+- **序列化基本类型值**
+  - writeBoolean(boolean)
+  - writeByte(int)
+  - writeChar(int v)
+  - writeShort(int v)
+  - writeInt(int v) 
+  - writeLong(long v) 
+  - writeFloat(float v)
+  - writeDouble(double v) 
+- **序列化字符串**
+  - writeBytes(String)：将字符串序列化为字节序列
+  - writeChars(String)：将字符串序列化为字符序列
+  - writeUTF(String)：将字符串序列化为UTF-8字符串
+- **序列化对象**
+  - writeObject(Object)
+- 刷新缓冲区
+
+```java
+public final void writeObject(Object obj) throws IOException {
+}
+```
+
+#### II. ObjectInputStream
+
+##### ① 构造器
+
+- 要创建ObjectInputStream时，一般使用第一个构造方法，向其**传入一个字节输入流**，作为序列化内容会通过该字节输入流输入到Java程序，并通过其方法完成反序列化
+
+```java
+public ObjectInputStream(InputStream in) throws IOException {
+}
+protected ObjectInputStream() throws IOException, SecurityException {
+}
+```
+
+##### ② 常用方法
+
+> ObjectInputStream仍然保留有InputStream的一些常用方法，但一般都不用
+
+- **序列化基本类型值**
+  - boolean readBoolean()
+  - byte readByte()
+  - char readChar()
+  - short readShort()
+  - int readInt() 
+  - long readLong() 
+  - float readFloat()
+  - double readDouble() 
+- **序列化字符串**
+  - String readUTF()
+- **序列化对象**
+  - Object readObject()
+- 关闭流
+
+## 1.4 字符流 
+
+### 1）文件输入输出流
 
 > 字符流的相关方法与字节流类似，只是在字符流中，需要用的是**char数组。**
 >
 > 其**底层其实是对字节流进行封装**
 
-##### FileReader
+#### I. FileReader
 
-###### 构造器
+##### ① 构造器
 
 - new FileReader(File/String)
 
-###### 常用方法
+##### ② 常用方法
 
 - read()：返回读取到的字符，返回类型为int；如果没有数据了，则返回-1
 - read(char[])：将外部数据读取到char数组中，并返回读取的数据长度；如果没有数据了，则返回-1
 
-##### BufferedReader
-
-> BufferedReader是一个**处理流（包装流）**，用来包装其他节点流，以提供更强大的输入功能。
->
-> 关闭处理流时，只需要关闭外层流（即**处理流会调用节点流的close()**）即可。
-
-BufferedReader中成员变量：
-
-- Reader in：用来接收其他**字符节点流**或者处理流
-- char cb[]：用来接收输入的数据
-
-```java
-private Reader in;
-private char cb[];
-```
-
-#### IV. 字符流 -- Writer
-
-##### FileWriter
+#### II. FileWriter
 
 > 使用FileWrite时，每次调用write方法，**必须要调用close()或者flush()来将内容刷新到外部**
 
-###### 构造器
+##### ① 构造器
 
 - new FileWriter(File/String)：覆盖模式
 - new FileWriter(File/String, boolean )：追加true时，使用追加模式
 
-###### 常用方法
+##### ② 常用方法
 
 - write(int)：写入单个字符
 - write(char[])
@@ -398,5 +498,63 @@ public void write() {
 }
 ```
 
+### 2）提高效率的输入输出流
 
+#### I. BufferedReader
 
+> BufferedReader是一个**处理流（包装流）**，用来包装其他节点流，以提供更强大的输入功能。
+>
+> 关闭处理流时，只需要关闭外层流（即**处理流会调用节点流的close()**）即可。
+
+BufferedReader中成员变量：
+
+- Reader in：用来接收其他**字符节点流**或者处理流
+- char cb[]：用来接收输入的数据
+
+```java
+private Reader in;
+private char cb[];
+```
+
+##### ① 构造器
+
+- new BufferedReader(Reader, int size)：传入一个字符流（可以是节点流也可以是处理流），并且设置缓冲区大小为size
+- new BufferedReader(Reader)：传入一个字符流，缓冲区大小设置为默认值（8192）
+
+##### ② 常用方法
+
+- readLine()：每次读取一行，当读到流的末尾时，返回null
+- read()：返回读取到的字符，返回类型为int；如果没有数据了，则返回-1
+- read(char[])：将外部数据读取到char数组中，并返回读取的数据长度；如果没有数据了，则返回-1
+
+#### II. BufferedWriter
+
+> 构造器与BufferedReader类似，常用方法与FileWriter类似
+
+##### ① 构造器
+
+- new BufferedWriter(Writer)
+- new BufferedWriter(Writer, int)
+
+##### ② 常用方法
+
+- write(int)：写入单个字符
+- write(char[])
+- write(char[], start, len)
+- write(String)
+- write(String, start, len)
+- **newLine()**：写入换行符
+
+### 3）字节流转换为字符流
+
+#### I. InputStreamReader
+
+##### ① 构造器
+
+##### ② 常用方法
+
+#### II. OutputStreamWrite
+
+##### ① 构造器
+
+##### ② 常用方法

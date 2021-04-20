@@ -563,5 +563,9 @@ private char cb[];
 
 ## 1.5 标准输入输出流
 
+### 1）System.in
+
+### 2）System.out
+
 ## 1.6 Properties
 

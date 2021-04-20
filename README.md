@@ -1,6 +1,6 @@
 # 博客介绍
 
-> [GitHub](https://github.com/spzhang12)
+> [博客地址]( https://spzhang12.github.io/studynotes/)
 
 ## 内容大纲
 

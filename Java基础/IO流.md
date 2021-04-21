@@ -545,27 +545,277 @@ private char cb[];
 - write(String, start, len)
 - **newLine()**：写入换行符
 
-### 3）字节流转换为字符流
+## 1.5 字节流转换为字符流
 
-#### I. InputStreamReader
+> 字符流默认按照UTF-8来读取，对于不是UTF-8编码的文本采用字符流输入输出时，就会出现乱码问题
 
-##### ① 构造器
+### 1）InputStreamReader
 
-##### ② 常用方法
+<img src="IO流.assets/image-20210421115611233.png" alt="image-20210421115611233" style="zoom:50%;" />
 
-#### II. OutputStreamWrite
+#### ① 构造器
 
-##### ① 构造器
+- 在通过构造方法创建InputStreamReader对象时，需要**传入一个字节输入流对象**。
 
-##### ② 常用方法
+- 可以传入一个**字符串或者Charset对象**，来指定输入二进制字节流的编码方式
+
+```java
+InputStreamReader(InputStream, Charset)
+InputStreamReader(InputStream)
+InputStreamReader(InputStream, String)
+InputStreamReader(InputStream, CharsetDecoder)
+```
+
+#### ② 常用方法
+
+- 通常通过一个二进制字节流和指定的编码来创建一个InputStreamReader
+- 然后通过创建的InputStreamReader对象来创建BufferedReader对象
+
+```java
+public void test() {
+    String filePath = "D:\\a.txt";
+    try {
+        // 1. 将FileInputStream流转换为编码为gbk的InputStreamReader
+        InputStreamReader isr = new InputStreamReader(new FileInputStream(filePath), "gbk");
+        // 2. 将InputStreamReader传入BufferedReader
+        BufferedReader br = new BufferedReader(isr);
+        // 3. 读取
+        String s = br.readLine();
+        System.out.println("读取内容：" + s);
+        br.close();
+    } catch (UnsupportedEncodingException e) {
+        e.printStackTrace();
+    } catch (IOException e) {
+        e.printStackTrace();
+    } 
+}
+```
+
+### 2）OutputStreamWrite
+
+![image-20210421115906229](IO流.assets/image-20210421115906229.png)
+
+#### ① 构造器
+
+- 在通过构造方法创建InputStreamReader对象时，需要**传入一个字节输出流对象**。
+
+- 可以传入一个**String对象或者Charset对象**，来指定输入二进制字节流的编码方式
+
+```java
+OutputStreamReader(OutputStream, Charset)
+OutputStreamReader(OutputStream)
+OutputStreamReader(OutputStream, String)
+OutputStreamReader(OutputStream, CharsetDecoder)
+```
+
+#### ② 常用方法
+
+- 与InputStreamReader类似，通过一个二进制输出字节流和指定的编码格式来创建OutputStreamReader对象
+- 然后通过OutputStreamReader对象来创建BufferedWrite对象来完成数据输出
 
 
 
-## 1.5 标准输入输出流
+## 1.6 标准输入输出流
 
 ### 1）System.in
 
+- 声明为InputStream类型，实例化为BufferedInputStream；
+
+- 标准输入，默认设备为键盘
+
+- 另外，可以使用System.in来作为Scanner的构造参数，实例化一个Scanner对象，用来获取程序的输入
+
+```java
+@Test
+public void test() {
+    System.out.println(System.in.getClass());
+    System.out.println(System.out.getClass());
+    System.out.println(System.err.getClass());
+    Scanner scanner = new Scanner(System.in);
+    String next = scanner.next();
+
+}
+```
+
+
+
 ### 2）System.out
 
-## 1.6 Properties
+> 声明为PrintStream类型，实例化为PrintStream
+>
+> 标准输出，默认设备为显示器
 
+- 可以通过System.setOut(PrintStream)修改System中的PrintStream对象，修改其输出位置
+
+## 1.7 打印流
+
+> 打印流分为字节流和字符流两种
+>
+> 打印流既可以输出到屏幕，也可以输出到文件中
+>
+> 构建方式：
+>
+> - 通过二进制/字符输出流来构建，构建时可以指定编码方式
+>
+> - 通过String指定文件路径构建
+>
+> - 通过File构建
+
+### 1）PrintStream
+
+#### ① 构造器
+
+- 可以构建一个输出到文件的打印流
+
+  ```java
+  PrintStream(File)
+  PrintStream(String)
+  ```
+
+- 可以指定打印流是否自动刷新
+
+  ```java
+  PrintStream(OutputStream)
+  PrintStream(OutputStream, boolean)
+  ```
+
+- 指定打印流的编码格式
+
+  ```java
+  PrintStream(OutputStream, boolean, Charset)
+  ```
+
+##### ② 常用方法
+
+> 底层调用write方法
+
+- print()
+- println()
+- close()
+
+### 2）PrintWriter
+
+#### ① 构造器
+
+> 既可以通过二进制字节流构建，也可以通过字符流构建
+
+- 可以构建一个输出到文件的打印流
+
+  ```java
+  PrintWriter(File)
+  PrintWriter(String)
+  ```
+
+- 通过字符流构建
+
+  ```java
+  PrintWriter(Writer)
+  PrintWriter(Writer, boolean)
+  ```
+
+- 通过二进制字节流构建
+
+  ```java
+  PrintWriter(OutputStream)
+  PrintWriter(OutputStream,boolean)
+  ```
+
+##### ② 常用方法
+
+> 底层调用write方法
+
+- print()
+- println()
+- close()
+
+## 1.8 Properties
+
+> 将程序中需要的一些配置信息，如数据库的用户名和密码等，从源代码中脱离出来，方便后期维护。
+
+Properties类是HashTable的子类，专门用于读取配置文件的集合类
+
+- 键值对"="两侧不想要有空格
+- 值不需要用引号括起来，默认类型是String
+
+### 1）构造器
+
+### 2）常用方法
+
+```java
+//通过Reader/InputStream获取Properties
+load(Reader)
+load(InputStream)
+//将Properties中的内容通过Writer/OutputStream输出
+list(Writer)
+list(OutputStream)
+//根据键获取值
+getProperty(key)
+//设置键值对到Properties对象
+setProperty(key, value)
+```
+
+### 3）根据配置文件创建Properties对象的几种方式
+
+将配置文件加载Properties对象一般有如下几个步骤：
+
+1. 创建Properties对象
+
+   ```java
+   Properties properties = new Properties();
+   ```
+
+2. 根据其配置文件创建输入流（可以是二进制字节流或字符流）
+
+   - 字节流：一般通过**Class对象的getClassLoader().getResourceAsStream()**方法来获得该配置文件的输入流，其中**"/"表示从classpath的根路径**查找（配置文件一般放在resources目录中），不带"/"则表示从当前这个class所在的包中开始查找
+
+   ```java
+   InputStream is = this.getClass().getClassLoader().getResourceAsStream("/dp.properties");
+   ```
+
+3. 根据配置文件的输入流加载配置文件
+
+   ```java
+   properties.load(is);
+   ```
+
+4. 获取配置文件中的某些配置信息
+
+   ```java
+   properties.getPropert(String key);
+   ```
+
+### 4）乱码问题
+
+**Windows默认中文编码格式为gbk**（Linux默认为UTF-8），所以如果创建的配置文件中有中文时，则配置文件会采用gbk的编码格式，如果直接使用字节加载配置文件则会出现乱码问题。
+
+要解决这个中文乱码问题，可以使用**InputStreamReader**，将字节流转换为gbk编码格式的字符流，并创建一个**BufferedReader**对象传递个load方法。
+
+```java
+InputStream is = this.getClass().getResourceAsStream("/dog.properties");
+Properties properties = new Properties();
+BufferedReader br = null;
+try {
+    br = new BufferedReader(new InputStreamReader(is, "gbk"));
+    properties.load(br);
+
+} catch (IOException e) {
+    e.printStackTrace();
+} finally {
+    if(br != null)
+        try {
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+}
+```
+
+
+
+## 1.9 本章作业
+
+1）判断是否存在文件夹，没有创建
+
+2）创建文件
+
+如果已经存在，则提示

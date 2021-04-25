@@ -1,0 +1,6 @@
+- [首页](/)
+- Redis
+  - [Redis入门](Redis/1. Redis入门)
+  - [Redis的数据类型-string](Redis/2. Redis的数据类型-string)
+  - [Redis的数据类型-hash](Redis/3. Redis的数据类型-hash)
+  - [Redis的数据类型-list](Redis/4. Redis的数据类型-list)
